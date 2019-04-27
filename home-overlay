@@ -1,0 +1,68 @@
+#!/bin/sh
+
+set -e
+
+USERNAME=#TARGETUSER#
+USERHOME=`getent passwd "$USERNAME" | cut -d: -f6`
+
+OVERLAYD="/run/local/user/$(id -u "$USERNAME")/overlay.d"
+WORKD="$OVERLAYD/work"
+UPPERD="$OVERLAYD/upper"
+
+overlay_base_mounted () {
+    grep -q "^tmpfs $OVERLAYD" /proc/mounts
+}
+
+home_overlay_mounted () {
+    grep -q "^overlay $USERHOME" /proc/mounts
+}
+
+start () {
+    if ! home_overlay_mounted; then
+        echo "Overlaying $USERNAME home"
+        if ! overlay_base_mounted; then
+            echo "Preparing overlay base mounts"
+            if [ ! -e "$OVERLAYD" ]; then
+                mkdir -p "$OVERLAYD"
+            fi
+            if [ ! -d "$OVERLAYD" ]; then
+                echo "Overlay base $OVERLAYD is not a directory"
+                exit 2
+            fi
+            mount -t tmpfs tmpfs "$OVERLAYD"
+        fi
+        mkdir "$UPPERD" "$WORKD"
+        chown -R "$USERNAME" "$UPPERD" "$WORKD"
+
+        mount -t overlay -o "lowerdir=$USERHOME,upperdir=$UPPERD,workdir=$WORKD" overlay "$USERHOME"
+    fi
+}
+
+stop () {
+    if home_overlay_mounted; then
+        umount "$USERHOME"
+    fi
+    if overlay_base_mounted; then
+        umount "$OVERLAYD"
+    fi
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        if home_overlay_mounted; then
+            echo "Overlay-mount active on $USERHOME"
+        else
+            echo "Overlay-mount inactive on $USERHOME"
+        fi
+        ;;
+    *)
+        echo "Usage: $0 [start|stop|status]" 1>&2
+        exit 1
+        ;;
+esac

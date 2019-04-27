@@ -1,0 +1,11 @@
+[Unit]
+Description=Mount overlay for ephemeral user
+
+[Service]
+Type=oneshot
+ExecStart=#CONTROLSCRIPT# start
+ExecStop=#CONTROLSCRIPT# stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+SERVICE="#TARGETUSER#-home-overlay.service"
+
+SUDO=sudo
+
+if ! tty -s; then
+    if [ -n "$SUDO_ASKPASS" ]; then
+        SUDO="$SUDO -A"
+    elif which ssh-askpass >/dev/null; then
+        export SUDO_ASKPASS="$(which ssh-askpass)"
+        SUDO="$SUDO -A"
+    else
+        SUDO=gksudo
+    fi
+fi
+
+$SUDO systemctl stop $SERVICE && $SUDO systemctl start $SERVICE
