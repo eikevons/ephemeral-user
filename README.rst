@@ -51,3 +51,9 @@ profile:
 
 #. Stop Firefox.
 #. Restart the home overlay: `ephemeral-clear`.
+
+Requirements
+------------
+
+* `sudo`
+* `adduser`
