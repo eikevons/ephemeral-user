@@ -1,11 +1,11 @@
-
 TARGETUSER ?= ephemeral
-
 PREFIX ?= /usr/local
-
 CONTROLSCRIPT := $(PREFIX)/sbin/$(TARGETUSER)-home-overlay
 
-TARGETS := $(PREFIX)/bin/$(TARGETUSER)-clear $(CONTROLSCRIPT) $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service
+BUILDTARGETS := build/bin/$(TARGETUSER)-clear build/sbin/$(TARGETUSER)-home-overlay build/share/home-overlay/$(TARGETUSER)-home-overlay.service
+INSTALLTARGETS := $(PREFIX)/bin/$(TARGETUSER)-clear $(CONTROLSCRIPT) $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service
+
+build: build/bin/$(TARGETUSER)-clear build/sbin/$(TARGETUSER)-home-overlay build/share/home-overlay/$(TARGETUSER)-home-overlay.service
 
 check:
 	-@which install >/dev/null || { echo "Missing command: install"; false; }
@@ -39,10 +39,9 @@ $(PREFIX)/sbin/$(TARGETUSER)-home-overlay: build/sbin/$(TARGETUSER)-home-overlay
 $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service: build/share/home-overlay/$(TARGETUSER)-home-overlay.service
 	install -D -m 0644 $< $@
 
-build: build/bin/$(TARGETUSER)-clear build/sbin/$(TARGETUSER)-home-overlay build/share/home-overlay/$(TARGETUSER)-home-overlay.service
-
-install: check user $(TARGETS)
-	echo systemctl link $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service
+install: check user $(INSTALLTARGETS)
+	systemctl link $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service \
+	    && systemctl enable $(TARGETUSER)-home-overlay.service
 
 user:
 	@id $(TARGETUSER) >/dev/null 2>&1 && { \
