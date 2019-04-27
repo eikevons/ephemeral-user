@@ -10,11 +10,11 @@ WORKD="$OVERLAYD/work"
 UPPERD="$OVERLAYD/upper"
 
 overlay_base_mounted () {
-    grep -q "^tmpfs $OVERLAYD" /proc/mounts
+    grep -q "^tmpfs $OVERLAYD " /proc/mounts
 }
 
 home_overlay_mounted () {
-    grep -q "^overlay $USERHOME" /proc/mounts
+    grep -q "^overlay $USERHOME " /proc/mounts
 }
 
 start () {
