@@ -2,6 +2,8 @@ TARGETUSER ?= ephemeral
 PREFIX ?= /usr/local
 CONTROLSCRIPT := $(PREFIX)/sbin/$(TARGETUSER)-home-overlay
 
+SERVICENAME := $(TARGETUSER)-home-overlay.service
+
 BUILDTARGETS := build/bin/$(TARGETUSER)-clear build/sbin/$(TARGETUSER)-home-overlay build/share/home-overlay/$(TARGETUSER)-home-overlay.service
 INSTALLTARGETS := $(PREFIX)/bin/$(TARGETUSER)-clear $(CONTROLSCRIPT) $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service
 
@@ -40,8 +42,8 @@ $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service: build/share/hom
 	install -D -m 0644 $< $@
 
 install: check user $(INSTALLTARGETS)
-	systemctl link $(PREFIX)/share/home-overlay/$(TARGETUSER)-home-overlay.service \
-	    && systemctl enable $(TARGETUSER)-home-overlay.service
+	systemctl link $(PREFIX)/share/home-overlay/$(SERVICENAME) \
+	    && systemctl enable $(SERVICENAME)
 
 user:
 	@id $(TARGETUSER) >/dev/null 2>&1 && { \
@@ -50,5 +52,8 @@ user:
 	    echo "Creating user $(TARGETUSER)"; \
 	    adduser --disabled-login $(TARGETUSER); \
 	}
+
+sudo-snippet:
+	@echo "$(USER) ALL = (ALL) NOPASSWD: /bin/systemctl stop $(SERVICENAME), /bin/systemctl stop $(SERVICENAME)"
 
 .PHONY: build check clean install user

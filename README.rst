@@ -26,6 +26,9 @@ Run as root: `make install`. This creates the user _ephemeral_ with
 disabled login if necessary, installs the necessary scripts and enables
 the systemd service.
 
+Use `make sudo-snippet` to get a snippet you can paste into e.g.
+`/etc/sudoers.d/local-browsing`.
+
 Options
 ~~~~~~~
 
