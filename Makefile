@@ -54,6 +54,6 @@ user:
 	}
 
 sudo-snippet:
-	@echo "$(USER) ALL = (ALL) NOPASSWD: /bin/systemctl stop $(SERVICENAME), /bin/systemctl stop $(SERVICENAME)"
+	@echo "$(USER) ALL = (ALL) NOPASSWD: /bin/systemctl start $(SERVICENAME), /bin/systemctl stop $(SERVICENAME)"
 
 .PHONY: build check clean install user
