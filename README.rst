@@ -82,3 +82,7 @@ Requirements
 
 * ``sudo``
 * ``adduser``
+
+Recommended commands:
+* ``pgrep``
+* ``notify-send``

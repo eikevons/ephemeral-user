@@ -1,18 +1,39 @@
 #!/bin/sh
 
-SERVICE="#TARGETUSER#-home-overlay.service"
+set -e
 
-SUDO=sudo
+TARGETUSER="#TARGETUSER#"
+SERVICE="$TARGETUSER-home-overlay.service"
+
+SUDO="sudo"
+ECHO="echo"
 
 if ! tty -s; then
+    if command -v notify-send >/dev/null; then
+        ECHO=notify-send
+    fi
+
     if [ -n "$SUDO_ASKPASS" ]; then
         SUDO="$SUDO -A"
-    elif which ssh-askpass >/dev/null; then
+    elif command -v ssh-askpass >/dev/null; then
         export SUDO_ASKPASS="$(which ssh-askpass)"
         SUDO="$SUDO -A"
     else
+        if ! command -v gksudo >/dev/null; then
+            $ECHO "Could not find X-compatible sudo interface"
+            exit 1
+        fi
         SUDO=gksudo
     fi
+fi
+
+if command -v pgrep >/dev/null; then
+    if pgrep -u "$TARGETUSER" >/dev/null; then
+        $ECHO "Running processes for user $TARGETUSER: Clearing filesystem will fail!"
+        exit 2
+    fi
+else
+    $ECHO "Could not determine if $TARGETUSER is running any processes: pgrep not installed."
 fi
 
 $SUDO systemctl stop $SERVICE && $SUDO systemctl start $SERVICE

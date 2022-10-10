@@ -10,9 +10,12 @@ INSTALLTARGETS := $(PREFIX)/bin/$(TARGETUSER)-clear $(CONTROLSCRIPT) $(PREFIX)/s
 build: build/bin/$(TARGETUSER)-clear build/sbin/$(TARGETUSER)-home-overlay build/share/home-overlay/$(TARGETUSER)-home-overlay.service
 
 check:
-	-@which install >/dev/null || { echo "Missing command: install"; false; }
+	-@command -v install >/dev/null || { echo "Missing command: install"; false; }
 	-@[ -e /usr/sbin/adduser ] || { echo "Missing command: adduser"; false; }
-	-@which sudo >/dev/null || { echo "Missing command: sudo"; false; }
+	-@command -v sudo >/dev/null || { echo "Missing command: sudo"; false; }
+	-@command -v pgrep >/dev/null || echo "Missing recommended command: pgrep"
+	-@command -v notify-send >/dev/null || echo "Missing recommended command: notify-send"
+
 
 clean:
 	rm -rf build
